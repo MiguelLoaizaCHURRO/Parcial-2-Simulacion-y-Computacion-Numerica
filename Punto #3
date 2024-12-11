@@ -1,0 +1,57 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def pedir_dato(mensaje, tipo=float, validacion=lambda x: x > 0):
+    while True:
+        try:
+            valor = tipo(input(mensaje))
+            if not validacion(valor):
+                raise ValueError("El valor no cumple con la condición de validación.")
+            return valor
+        except ValueError as e:
+            print(f"Error: {e}. Intenta nuevamente.")
+
+def simular_tanque(L, A, H, S, E, V_inicial, tiempo_total, intervalo):
+    volumen_maximo = L * A * H
+    tiempos = np.arange(0, tiempo_total + intervalo, intervalo)
+    volumenes = []
+    volumen_actual = V_inicial
+
+    for t in tiempos:
+        cambio_volumen = (S - E) * intervalo
+        volumen_actual += cambio_volumen
+
+        if volumen_actual > volumen_maximo:
+            volumen_actual = volumen_maximo
+        elif volumen_actual < 0:
+            volumen_actual = 0
+
+        volumenes.append(volumen_actual)
+
+    plt.figure(figsize=(10, 6))
+    plt.plot(tiempos, volumenes, label="Volumen en el tanque", color="blue")
+    plt.axhline(volumen_maximo, color='green', linestyle="--", label="Volumen máximo")
+    plt.axhline(0, color='red', linestyle="--", label="Vacío")
+    plt.title("Simulación de llenado/vaciado del tanque")
+    plt.xlabel("Tiempo (s)")
+    plt.ylabel("Volumen (cm^3)")
+    plt.legend()
+    plt.grid()
+    plt.show()
+
+# Solicitar datos al usuario utilizando la función pedir_dato
+print("Introduce las dimensiones del tanque (en cm):")
+L = pedir_dato("Largo (L): ", float, lambda x: x > 0)
+A = pedir_dato("Ancho (A): ", float, lambda x: x > 0)
+H = pedir_dato("Altura (H): ", float, lambda x: x > 0)
+
+print("Introduce las tasas de flujo (en cm^3/s):")
+S = pedir_dato("Suministro (S): ", float, lambda x: x >= 0)
+E = pedir_dato("Desagüe (E): ", float, lambda x: x >= 0)
+
+V_inicial = pedir_dato("Volumen inicial en el tanque (cm^3): ", float, lambda x: x >= 0)
+tiempo_total = pedir_dato("Tiempo total de simulación (s): ", float, lambda x: x > 0)
+intervalo = pedir_dato("Intervalo de tiempo entre cálculos (s): ", float, lambda x: x > 0)
+
+# Ejecutar simulación
+simular_tanque(L, A, H, S, E, V_inicial, tiempo_total, intervalo)
